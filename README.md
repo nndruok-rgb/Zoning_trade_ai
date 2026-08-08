@@ -18,64 +18,80 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 950px;
+            max-width: 600px;
             margin: 0 auto;
         }
 
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding: 15px 0;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
             color: var(--accent-color);
-            margin: 0;
-            font-size: 28px;
+            margin: 0 0 5px 0;
+            font-size: 22px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+        .header p {
+            margin: 0;
+            font-size: 13px;
+            color: #8b949e;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
         }
 
         .card h2 {
             margin-top: 0;
             font-size: 18px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
+            color: #f0f6fc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .price-display {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
+            color: #ffffff;
             margin: 15px 0;
+            text-align: center;
+        }
+
+        .status-box {
+            background: #21262d;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin: 8px 0;
-            font-size: 14px;
+            margin: 10px 0;
+            font-size: 15px;
         }
 
         .green-text { color: var(--green); font-weight: bold; }
@@ -89,21 +105,21 @@
             padding: 14px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s ease;
-            margin-top: 15px;
+            transition: background 0.2s ease;
+            margin-top: 10px;
         }
 
-        .btn-action:hover {
-            opacity: 0.9;
+        .btn-action:active {
+            opacity: 0.8;
         }
 
         .chart-container {
-            height: 450px;
+            height: 400px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
         }
     </style>
@@ -112,143 +128,67 @@
 
     <div class="container">
         <div class="header">
-            <h1>⚡ Cyber AI Trading Analytics</h1>
-            <p>ប្រព័ន្ធវិភាគទីផ្សារ និងផ្ញើ Signals ទៅ Telegram ស្វ័យប្រវត្តិ</p>
+            <h1>⚡ Gold AI Market Analytics</h1>
+            <p>ប្រព័ន្ធវិភាគទីផ្សារ និង ផ្ញើ Signals ស្វ័យប្រវត្តិទៅ Telegram</p>
         </div>
 
-        <div class="grid">
-            <!-- Gold Dashboard Card -->
-            <div class="card">
-                <h2>📈 Gold (XAU/USD) Analysis</h2>
-                <div class="price-display" id="gold-price">Loading...</div>
-                <div class="stat-row">
-                    <span>ឱកាសឡើង (Upside):</span>
-                    <span class="green-text" id="gold-up">+0.00%</span>
-                </div>
-                <div class="stat-row">
-                    <span>ឱកាសចុះ (Downside):</span>
-                    <span class="red-text" id="gold-down">-0.00%</span>
-                </div>
-                <div class="stat-row">
-                    <span>AI Signal:</span>
-                    <span id="gold-signal">NEUTRAL ⚪</span>
-                </div>
-                <button class="btn-action" onclick="sendSignal('GOLD')">🚀 ផ្ញើ Gold Signal ទៅ Telegram</button>
+        <!-- Gold Analytics Card -->
+        <div class="card">
+            <h2>📈 XAU/USD (Gold) Analytics</h2>
+            
+            <div class="price-display" id="gold-price">Loading...</div>
+
+            <div class="status-box">
+                ស្ថានភាពទីផ្សារ: <b id="gold-status" style="color: var(--accent-color);">-</b>
             </div>
 
-            <!-- BTC Dashboard Card -->
-            <div class="card">
-                <h2>₿ Bitcoin (BTC/USD) Analysis</h2>
-                <div class="price-display" id="btc-price">Loading...</div>
-                <div class="stat-row">
-                    <span>ឱកាសឡើង (Upside):</span>
-                    <span class="green-text" id="btc-up">+0.00%</span>
-                </div>
-                <div class="stat-row">
-                    <span>ឱកាសចុះ (Downside):</span>
-                    <span class="red-text" id="btc-down">-0.00%</span>
-                </div>
-                <div class="stat-row">
-                    <span>AI Signal:</span>
-                    <span id="btc-signal">NEUTRAL ⚪</span>
-                </div>
-                <button class="btn-action" onclick="sendSignal('BTC')">🚀 ផ្ញើ BTC Signal ទៅ Telegram</button>
+            <div class="stat-row">
+                <span>Trend ទូទៅ:</span>
+                <span id="gold-trend" style="font-weight: bold;">-</span>
             </div>
+            <div class="stat-row">
+                <span>AI Signal Recommendation:</span>
+                <span id="gold-signal" style="font-weight: bold;">-</span>
+            </div>
+            <div class="stat-row">
+                <span>ឱកាសឡើង (Upside):</span>
+                <span class="green-text" id="gold-up">+0.00%</span>
+            </div>
+            <div class="stat-row">
+                <span>ឱកាសចុះ (Downside):</span>
+                <span class="red-text" id="gold-down">-0.00%</span>
+            </div>
+
+            <button class="btn-action" onclick="fetchAnalysis()">🚀 វិភាគឡើងវិញ & ផ្ញើ Signal ទៅ Telegram</button>
         </div>
 
-        <!-- TradingView Chart -->
+        <!-- TradingView Chart Widget -->
         <div class="chart-container">
-            <div id="tradingview_xau" style="height:100%;"></div>
+            <div id="tradingview_gold" style="height:100%;"></div>
         </div>
     </div>
 
     <!-- TradingView Library -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // ព័ត៌មាន Telegram របស់អ្នក (បញ្ចូលរួចរាល់)
-        const BOT_TOKEN = "8442827788:AAFrMrr6OB5m1Oy64U63O1KNM0eyKqIaeAY";
-        const CHAT_ID = "5983230232";
+        // URL API របស់ PythonAnywhere របស់អ្នក
+        const API_URL = "https://Ratry.pythonanywhere.com/api/analyze";
 
-        // Store Market Data
-        let marketData = {
-            GOLD: { price: 2350.50, up: 1.25, down: 0.65, signal: "BUY 🟢", conf: 82 },
-            BTC: { price: 67200.00, up: 2.10, down: 1.40, signal: "SELL 🔴", conf: 78 }
-        };
-
-        // ទាញយកតម្លៃ Live ពី API
-        async function fetchPrices() {
+        async function fetchAnalysis() {
+            document.getElementById('gold-price').innerText = "Analyzing...";
             try {
-                // Fetch BTC Price
-                const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                const btcJson = await btcRes.json();
-                marketData.BTC.price = btcJson.bitcoin.usd;
+                const response = await fetch(API_URL);
+                const data = await response.json();
 
-                // Simulated Live Indicators for Gold & BTC % Volatility
-                marketData.GOLD.up = (Math.random() * 1.5 + 0.5).toFixed(2);
-                marketData.GOLD.down = (Math.random() * 1.2 + 0.3).toFixed(2);
-                marketData.BTC.up = (Math.random() * 2.5 + 0.8).toFixed(2);
-                marketData.BTC.down = (Math.random() * 2.0 + 0.5).toFixed(2);
-
-                updateUI();
-            } catch (e) {
-                console.log("Error fetching prices, using fallback data.");
-                updateUI();
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('gold-price').innerText = `$${marketData.GOLD.price.toLocaleString()}`;
-            document.getElementById('gold-up').innerText = `+${marketData.GOLD.up}%`;
-            document.getElementById('gold-down').innerText = `-${marketData.GOLD.down}%`;
-            document.getElementById('gold-signal').innerText = marketData.GOLD.signal;
-
-            document.getElementById('btc-price').innerText = `$${marketData.BTC.price.toLocaleString()}`;
-            document.getElementById('btc-up').innerText = `+${marketData.BTC.up}%`;
-            document.getElementById('btc-down').innerText = `-${marketData.BTC.down}%`;
-            document.getElementById('btc-signal').innerText = marketData.BTC.signal;
-        }
-
-        // មុខងារផ្ញើសារទៅ Telegram
-        async function sendSignal(asset) {
-            const data = marketData[asset];
-            const assetName = asset === 'GOLD' ? 'GOLD (XAU/USD)' : 'BITCOIN (BTC/USD)';
-            
-            const message = `
-🤖 <b>AI TRADING SIGNAL ANALYTICS</b>
-----------------------------------
-📈 <b>ទ្រព្យសកម្ម:</b> ${assetName}
-💵 <b>តម្លៃបច្ចុប្បន្ន:</b> $${data.price.toLocaleString()}
-
-📊 <b>ការប្រមាណ % ឡើង/ចុះ:</b>
-• ឱកាសឡើង (Upside): +${data.up}%
-• ឱកាសចុះ (Downside): -${data.down}%
-
-🎯 <b>AI Signal:</b> ${data.signal}
-🔥 <b>កម្រិតទំនុកចិត្ត:</b> ${data.conf}%
-----------------------------------
-⚡ <i>Generated from Web Dashboard</i>
-            `;
-
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-
-                if (response.ok) {
-                    alert(`✅ បានផ្ញើ Signal ${asset} ទៅ Telegram រួចរាល់!`);
-                } else {
-                    alert('❌ មានបញ្ហាក្នុងការផ្ញើ! សូមពិនិត្យ Bot Token ឬ Chat ID');
-                }
+                document.getElementById('gold-price').innerText = `$${data.price.toLocaleString()}`;
+                document.getElementById('gold-status').innerText = data.status;
+                document.getElementById('gold-trend').innerText = data.trend;
+                document.getElementById('gold-signal').innerText = data.signal;
+                document.getElementById('gold-up').innerText = `+${data.upside}%`;
+                document.getElementById('gold-down').innerText = `-${data.downside}%`;
             } catch (error) {
-                alert('❌ Error sending message: ' + error.message);
+                document.getElementById('gold-price').innerText = "Error!";
+                alert("មិនអាចភ្ជាប់ទៅ Server របស់ PythonAnywhere បានទេ! ៖ " + error.message);
             }
         }
 
@@ -263,12 +203,12 @@
             "locale": "en",
             "toolbar_bg": "#f1f3f6",
             "enable_publishing": false,
-            "container_id": "tradingview_xau"
+            "hide_legend": true,
+            "container_id": "tradingview_gold"
         });
 
-        // Run
-        fetchPrices();
-        setInterval(fetchPrices, 30000); // Auto refresh 30sec
+        // ដំណើរការវិភាគភ្លាមៗពេលបើក Web
+        fetchAnalysis();
     </script>
 </body>
 </html>

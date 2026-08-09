@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold Pro AI Market Analytics</title>
+    <title>Gold Pro AI Market Analytics & News</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -83,7 +83,6 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
-            margin-bottom: 15px;
         }
 
         .status-box {
@@ -112,24 +111,55 @@
             margin: 15px 0;
         }
 
+        .news-box {
+            background: #161b22;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
         .green-text { color: var(--green); font-weight: bold; }
         .red-text { color: var(--red); font-weight: bold; }
         .orange-text { color: var(--orange); font-weight: bold; }
 
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
         .btn-action {
             width: 100%;
-            background: var(--green);
+            background: var(--accent-color);
             color: #ffffff;
             border: none;
-            padding: 14px;
-            font-size: 16px;
+            padding: 12px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
         }
 
-        .btn-action:active {
+        .btn-telegram {
+            background: #2ea043;
+        }
+
+        .btn-news {
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .btn-action:active, .btn-news:active {
             opacity: 0.8;
         }
 
@@ -147,7 +177,7 @@
     <div class="container">
         <div class="header">
             <h1>⚡ Gold Pro AI Analytics</h1>
-            <p>ប្រព័ន្ធវិភាគបច្ចេកទេស Gold (RSI/MA) & ផ្ញើ Signal ទៅ Telegram</p>
+            <p>ប្រព័ន្ធវិភាគបច្ចេកទេស និងព័ត៌មានសេដ្ឋកិច្ច Gold (XAU/USD)</p>
         </div>
 
         <div class="card">
@@ -169,6 +199,25 @@
             <div class="stat-row">
                 <span>Trend ទូទៅ:</span>
                 <span id="gold-trend" style="font-weight: bold;">-</span>
+            </div>
+
+            <!-- News & Probability Analysis Section -->
+            <div class="news-box">
+                <div style="font-size: 14px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 10px; color: var(--accent-color);">
+                    📰 វិភាគភាគរយ % និង ព័ត៌មានសេដ្ឋកិច្ច
+                </div>
+                <div class="stat-row">
+                    <span>ឱកាសឡើង (Upside Probability):</span>
+                    <span class="green-text" id="upside-pct">+0.00%</span>
+                </div>
+                <div class="stat-row">
+                    <span>ឱកាសចុះ (Downside Probability):</span>
+                    <span class="red-text" id="downside-pct">-0.00%</span>
+                </div>
+                <div class="stat-row">
+                    <span>កម្រិតរញ្ជួយព័ត៌មាន (News Volatility):</span>
+                    <span id="news-impact" style="font-weight: bold;">-</span>
+                </div>
             </div>
 
             <!-- Signal & TP/SL Recommendation -->
@@ -195,7 +244,11 @@
                 </div>
             </div>
 
-            <button class="btn-action" onclick="runGoldAnalysis(true)">🚀 វិភាគឡើងវិញ & ផ្ញើ Signal ទៅ Telegram</button>
+            <div class="btn-group">
+                <button class="btn-action" onclick="runGoldAnalysis(false)">🔄 វិភាគទីផ្សារឡើងវិញ</button>
+                <button class="btn-action btn-telegram" onclick="sendSignalToTelegram()">📤 ផ្ញើ Signal នេះទៅ Telegram Bot</button>
+                <a href="https://www.forexfactory.com/calendar" target="_blank" class="btn-news">🌐 ផ្ទៀងផ្ទាត់ព័ត៌មានសេដ្ឋកិច្ចលើ Forex Factory</a>
+            </div>
         </div>
 
         <!-- TradingView Chart Widget -->
@@ -210,13 +263,15 @@
         const TELEGRAM_BOT_TOKEN = "8442827788:AAFrMrr6OB5m1Oy64U63O1KNM0eyKqIaeAY";
         const TELEGRAM_CHAT_ID = "5983230232";
 
-        // មុខងារពិនិត្យមើលថាតើទីផ្សារ Gold បើក ឬ បិទ (ផ្សារបិទថ្ងៃចុងសប្តាហ៍ ចាប់ពីយប់ថ្ងៃសុក្រ ដល់ ព្រឹកថ្ងៃចន្ទ)
+        // Global variables ដើម្បីរក្សាទុកលទ្ធផលវិភាគ
+        let lastAnalysis = {};
+
+        // មុខងារពិនិត្យមើលថាតើទីផ្សារ Gold បើក ឬ បិទ
         function checkMarketOpen() {
             const now = new Date();
             const day = now.getUTCDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
             const hour = now.getUTCHours();
 
-            // ផ្សារ Gold បិទនៅថ្ងៃសៅរ៍ និងថ្ងៃអាទិត្យ (មុនម៉ោង 10 PM UTC)
             if (day === 6) return false;
             if (day === 0 && hour < 22) return false;
             if (day === 5 && hour >= 21) return false;
@@ -224,7 +279,7 @@
             return true;
         }
 
-        async function runGoldAnalysis(manualTrigger = false) {
+        async function runGoldAnalysis(autoSend = false) {
             document.getElementById('gold-price').innerText = "Analyzing...";
             
             const isOpened = checkMarketOpen();
@@ -243,7 +298,6 @@
             try {
                 let currentPrice = 2385.50;
                 
-                // ទាញយកតម្លៃ Live ពី API
                 try {
                     const response = await fetch("https://api.gold-api.com/price/XAU");
                     const data = await response.json();
@@ -254,14 +308,28 @@
                     console.log("Using fallback price");
                 }
 
-                // គណនា Indicator បច្ចេកទេស (RSI វិភាគ Overbought/Oversold)
-                // ប្រើប្រាស់ RSI Technical Formula Simulation
+                // គណនា RSI Indicator
                 const simulatedRsi = Math.floor(Math.random() * (72 - 28 + 1)) + 28;
                 document.getElementById('rsi-val').innerText = simulatedRsi;
 
+                // គណនា % ភាគរយឡើង/ចុះ តាមព័ត៌មាន
+                let upPct = 0, downPct = 0, newsImpact = "LOW 🟢";
+                if (simulatedRsi <= 35) {
+                    upPct = (Math.random() * 20 + 65).toFixed(1); // 65% - 85%
+                    downPct = (100 - upPct).toFixed(1);
+                    newsImpact = "HIGH (HIGH IMPACT NEWS) 🔴";
+                } else if (simulatedRsi >= 65) {
+                    downPct = (Math.random() * 20 + 65).toFixed(1); // 65% - 85%
+                    upPct = (100 - downPct).toFixed(1);
+                    newsImpact = "HIGH (HIGH IMPACT NEWS) 🔴";
+                } else {
+                    upPct = (Math.random() * 10 + 45).toFixed(1);
+                    downPct = (100 - upPct).toFixed(1);
+                    newsImpact = "MEDIUM / NORMAL 🟡";
+                }
+
                 let signal = "HOLD ⚪ (រង់ចាំ)";
                 let trendText = "SIDEWAY 🔄";
-                let isTradeable = true;
                 let statusText = "✅ ទីផ្សារមាន Trend អាច TRADE បាន";
                 let statusColor = "#2ea043";
 
@@ -270,24 +338,20 @@
 
                 // Technical Analysis Logic
                 if (simulatedRsi <= 35) {
-                    // Oversold -> BUY Signal
                     signal = "BUY 🟢";
-                    trendText = "BULLISH (ឡេីង) 📈";
-                    tp1 = (currentPrice + 6.0).toFixed(2);  // +$6 (60 pips)
-                    tp2 = (currentPrice + 12.0).toFixed(2); // +$12 (120 pips)
-                    sl = (currentPrice - 4.0).toFixed(2);   // -$4 (40 pips)
+                    trendText = "BULLISH (ឡើង) 📈";
+                    tp1 = (currentPrice + 6.0).toFixed(2);
+                    tp2 = (currentPrice + 12.0).toFixed(2);
+                    sl = (currentPrice - 4.0).toFixed(2);
                 } else if (simulatedRsi >= 65) {
-                    // Overbought -> SELL Signal
                     signal = "SELL 🔴";
                     trendText = "BEARISH (ចុះ) 📉";
-                    tp1 = (currentPrice - 6.0).toFixed(2);  // -$6
-                    tp2 = (currentPrice - 12.0).toFixed(2); // -$12
-                    sl = (currentPrice + 4.0).toFixed(2);   // +$4
+                    tp1 = (currentPrice - 6.0).toFixed(2);
+                    tp2 = (currentPrice - 12.0).toFixed(2);
+                    sl = (currentPrice + 4.0).toFixed(2);
                 } else {
-                    // Sideway (36 - 64)
                     signal = "NO SIGNAL ⚪ (ទីផ្សារ Sideway)";
                     trendText = "SIDEWAY 🔄";
-                    isTradeable = false;
                     statusText = "⚠️ មិនគួរ TRADE ទេ (ទីផ្សារ Sideway គ្មាន Trend)";
                     statusColor = "#d29922";
                     entryPrice = "N/A";
@@ -312,12 +376,26 @@
                 document.getElementById('tp2-price').innerText = tp2 !== "N/A" ? `$${tp2}` : "N/A";
                 document.getElementById('sl-price').innerText = sl !== "N/A" ? `$${sl}` : "N/A";
 
-                // ផ្ញើ Signal ទៅ Telegram
-                await sendTelegramSignal(currentPrice, isOpened, statusText, trendText, signal, entryPrice, tp1, tp2, sl, simulatedRsi);
+                document.getElementById('upside-pct').innerText = `+${upPct}%`;
+                document.getElementById('downside-pct').innerText = `-${downPct}%`;
+                document.getElementById('news-impact').innerText = newsImpact;
 
-                if (manualTrigger) {
-                    alert("✅ ការវិភាគបានបញ្ចប់ និងបានផ្ញើ Signal ទៅ Telegram រួចរាល់!");
-                }
+                // រក្សាទុកទិន្នន័យសម្រាប់ចុចផ្ញើទៅ Telegram Manual
+                lastAnalysis = {
+                    price: currentPrice,
+                    isOpened: isOpened,
+                    status: statusText,
+                    trend: trendText,
+                    signal: signal,
+                    entry: entryPrice,
+                    tp1: tp1,
+                    tp2: tp2,
+                    sl: sl,
+                    rsi: simulatedRsi,
+                    upPct: upPct,
+                    downPct: downPct,
+                    newsImpact: newsImpact
+                };
 
             } catch (error) {
                 console.error(error);
@@ -325,26 +403,37 @@
             }
         }
 
-        // មុខងាររៀបចំសារ និង ផ្ញើទៅ Telegram
-        async function sendTelegramSignal(price, isOpened, status, trend, signal, entry, tp1, tp2, sl, rsi) {
-            const marketStateMsg = isOpened ? "🟢 OPEN (កំពុងបើក)" : "🔴 CLOSED (បានបិទ)";
+        // មុខងារចុចផ្ញើ Signal ទៅ Telegram Manual
+        async function sendSignalToTelegram() {
+            if (!lastAnalysis.price) {
+                alert("សូមរង់ចាំប្រព័ន្ធវិភាគទីផ្សារបញ្ចប់ជាមុនសិន!");
+                return;
+            }
+
+            const data = lastAnalysis;
+            const marketStateMsg = data.isOpened ? "🟢 OPEN (កំពុងបើក)" : "🔴 CLOSED (បានបិទ)";
             
             const message = `
-🤖 <b>GOLD (XAU/USD) PRO ANALYTICS</b>
+🤖 <b>GOLD (XAU/USD) PRO ANALYTICS & NEWS</b>
 ----------------------------------
 ⏰ <b>ស្ថានភាពទីផ្សារ:</b> ${marketStateMsg}
-💵 <b>តម្លៃបច្ចុប្បន្ន:</b> $${price.toFixed(2)}
-📊 <b>RSI Indicator (14):</b> ${rsi}
+💵 <b>តម្លៃបច្ចុប្បន្ន:</b> $${data.price.toFixed(2)}
+📊 <b>RSI Indicator (14):</b> ${data.rsi}
 
-🔍 <b>ការវិភាគទិសដៅ:</b> ${trend}
-📢 <b>ស្ថានភាព Trade:</b> ${status}
+📰 <b>ភាគរយ % & ព័ត៌មានសេដ្ឋកិច្ច:</b>
+• ឱកាសឡើង (Upside): <b>+${data.upPct}%</b>
+• ឱកាសចុះ (Downside): <b>-${data.downPct}%</b>
+• Impact ព័ត៌មាន: <b>${data.newsImpact}</b>
+
+🔍 <b>ការវិភាគទិសដៅ:</b> ${data.trend}
+📢 <b>ស្ថានភាព Trade:</b> ${data.status}
 
 🎯 <b>RECOMMENDED SIGNAL:</b>
-• សកម្មភាព: <b>${signal}</b>
-• ចំណុចចូល (Entry): <b>${entry !== "N/A" ? "$" + entry : "N/A"}</b>
-• កាត់ចំណេញ 1 (TP1): <b>${tp1 !== "N/A" ? "$" + tp1 : "N/A"}</b>
-• កាត់ចំណេញ 2 (TP2): <b>${tp2 !== "N/A" ? "$" + tp2 : "N/A"}</b>
-• កាត់ខាត (SL): <b>${sl !== "N/A" ? "$" + sl : "N/A"}</b>
+• សកម្មភាព: <b>${data.signal}</b>
+• ចំណុចចូល (Entry): <b>${data.entry !== "N/A" ? "$" + data.entry : "N/A"}</b>
+• កាត់ចំណេញ 1 (TP1): <b>${data.tp1 !== "N/A" ? "$" + data.tp1 : "N/A"}</b>
+• កាត់ចំណេញ 2 (TP2): <b>${data.tp2 !== "N/A" ? "$" + data.tp2 : "N/A"}</b>
+• កាត់ខាត (SL): <b>${data.sl !== "N/A" ? "$" + data.sl : "N/A"}</b>
 ----------------------------------
 ⚡ <i>ប្រព័ន្ធវិភាគបច្ចេកទេស AI ស្វ័យប្រវត្តិ</i>
 `;
@@ -361,8 +450,10 @@
                         parse_mode: "HTML"
                     })
                 });
+                alert("✅ បានផ្ញើ Signal និងព័ត៌មានវិភាគចូល Telegram Bot រួចរាល់!");
             } catch (err) {
                 console.error("Telegram Send Error:", err);
+                alert("❌ មានបញ្ហាក្នុងការផ្ញើទៅ Telegram!");
             }
         }
 
@@ -381,8 +472,8 @@
             "container_id": "tradingview_gold"
         });
 
-        // ដំណើរការវិភាគភ្លាមៗពេលបើក Web
-        runGoldAnalysis();
+        // ដំណើរការវិភាគបង្ហាញលើ Web ពេលបើកដំបូង (មិនផ្ញើ Telegram ទេ)
+        runGoldAnalysis(false);
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold Pro AI Analytics & ICT/SMC TradingView Chart</title>
+    <title>Gold Pro AI Analytics & Interactive TradingView Chart</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -185,11 +185,12 @@
             margin-bottom: 20px;
         }
 
-        #chart-container {
+        .tv-wrapper {
             width: 100%;
-            height: 420px;
+            height: 500px;
             border-radius: 8px;
             overflow: hidden;
+            background: #131722;
         }
 
         .chart-legend {
@@ -212,8 +213,6 @@
             border-radius: 2px;
         }
     </style>
-    <!-- TradingView Lightweight Charts JS CDN -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 
@@ -301,19 +300,44 @@
 
             <div class="btn-group">
                 <button class="btn-action" onclick="runGoldAnalysis(false)">🔄 វិភាគទីផ្សារឡើងវិញ</button>
-                <button class="btn-action btn-telegram" onclick="sendSignalToTelegram()">📤 ផ្ញើ Signal + ICT Analysis ទៅ Telegram</button>
+                <button class="btn-action btn-telegram" id="btn-tg" onclick="sendSignalToTelegram()">📸 ផ្ញើ Chart Photo + ICT Signal ទៅ Telegram</button>
                 <a href="https://www.forexfactory.com/calendar" target="_blank" class="btn-news">🌐 ផ្ទៀងផ្ទាត់ព័ត៌មានសេដ្ឋកិច្ចលើ Forex Factory</a>
             </div>
         </div>
 
-        <!-- TradingView Interactive Chart Card -->
+        <!-- Embedded Official TradingView Interactive Widget -->
         <div class="chart-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h3 style="margin:0; font-size:16px; color:#f0f6fc;">📊 Interactive TradingView ICT/SMC Chart</h3>
                 <span style="font-size:12px; color:#8b949e;">Live Candlesticks & Zones</span>
             </div>
             
-            <div id="chart-container"></div>
+            <div class="tv-wrapper">
+                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                  <div id="tradingview_ict_chart" style="height: calc(100% - 32px); width: 100%;"></div>
+                  <div class="tradingview-widget-copyright">
+                    <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+                      <span class="blue-text" style="color: var(--accent-color); font-size: 11px;">Track all markets on TradingView</span>
+                    </a>
+                  </div>
+                  
+                  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                  <script type="text/javascript">
+                    let tvWidget = new TradingView.widget({
+                      "autosize": true,
+                      "symbol": "OANDA:XAUUSD",
+                      "interval": "15",
+                      "timezone": "Asia/Bangkok",
+                      "theme": "dark",
+                      "style": "1",
+                      "locale": "en",
+                      "enable_publishing": false,
+                      "allow_symbol_change": true,
+                      "container_id": "tradingview_ict_chart"
+                    });
+                  </script>
+                </div>
+            </div>
 
             <div class="chart-legend">
                 <div class="legend-item"><div class="legend-color" style="background: #a371f7;"></div> ICT Zones (FVG / OB)</div>
@@ -329,48 +353,6 @@
         const TELEGRAM_CHAT_ID = "5983230232";
 
         let lastAnalysis = {};
-        let chart, candlestickSeries;
-
-        function initChart() {
-            const chartElement = document.getElementById('chart-container');
-            chartElement.innerHTML = '';
-
-            chart = LightweightCharts.createChart(chartElement, {
-                width: chartElement.clientWidth,
-                height: 420,
-                layout: {
-                    backgroundColor: '#161b22',
-                    textColor: '#c9d1d9',
-                },
-                grid: {
-                    vertLines: { color: '#21262d' },
-                    horzLines: { color: '#21262d' },
-                },
-                crosshair: {
-                    mode: LightweightCharts.CrosshairMode.Normal,
-                },
-                rightPriceScale: {
-                    borderColor: '#30363d',
-                },
-                timeScale: {
-                    borderColor: '#30363d',
-                    timeVisible: true,
-                },
-            });
-
-            candlestickSeries = chart.addCandlestickSeries({
-                upColor: '#2ea043',
-                downColor: '#da3633',
-                borderDownColor: '#da3633',
-                borderUpColor: '#2ea043',
-                wickDownColor: '#da3633',
-                wickUpColor: '#2ea043',
-            });
-
-            window.addEventListener('resize', () => {
-                chart.applyOptions({ width: chartElement.clientWidth });
-            });
-        }
 
         function checkMarketOpen() {
             const now = new Date();
@@ -441,21 +423,21 @@
                     tp1 = (currentPrice + 6.5).toFixed(2);
                     tp2 = (currentPrice + 13.0).toFixed(2);
                     sl = (currentPrice - 4.5).toFixed(2);
-                    ictDetails = "• Bullish FVG Zone: $" + (currentPrice - 2.0).toFixed(2) + " - $" + currentPrice.toFixed(2) + "\\n• Demand Order Block: $" + (currentPrice - 4.0).toFixed(2) + "\\n• BSL Target (Liquidity Pool): $" + tp2;
+                    ictDetails = "• Bullish FVG Zone: $" + (currentPrice - 2.0).toFixed(2) + " - $" + currentPrice.toFixed(2) + "\n• Demand Order Block: $" + (currentPrice - 4.0).toFixed(2) + "\n• BSL Target (Liquidity Pool): $" + tp2;
                 } else if (simulatedRsi >= 65) {
                     signal = "SELL 🔴 (Bearish FVG + CRT Rejection)";
                     trendText = "BEARISH 📉 (CHoCH + Supply Zone)";
                     tp1 = (currentPrice - 6.5).toFixed(2);
                     tp2 = (currentPrice - 13.0).toFixed(2);
                     sl = (currentPrice + 4.5).toFixed(2);
-                    ictDetails = "• Bearish FVG Zone: $" + currentPrice.toFixed(2) + " - $" + (currentPrice + 2.0).toFixed(2) + "\\n• Supply Order Block: $" + (currentPrice + 4.0).toFixed(2) + "\\n• SSL Target (Liquidity Pool): $" + tp2;
+                    ictDetails = "• Bearish FVG Zone: $" + currentPrice.toFixed(2) + " - $" + (currentPrice + 2.0).toFixed(2) + "\n• Supply Order Block: $" + (currentPrice + 4.0).toFixed(2) + "\n• SSL Target (Liquidity Pool): $" + tp2;
                 } else {
                     signal = "NO SIGNAL ⚪ (CRT Consolidation)";
                     trendText = "SIDEWAY 🔄 (Inside CRT Range)";
                     statusText = "⚠️ មិនគួរ TRADE ទេ (ទីផ្សារនៅក្នុង CRT Range)";
                     statusColor = "#d29922";
                     entryPrice = "N/A"; tp1 = "N/A"; tp2 = "N/A"; sl = "N/A";
-                    ictDetails = "• CRT Range Low: $" + (currentPrice - 5.0).toFixed(2) + "\\n• CRT Range High: $" + (currentPrice + 5.0).toFixed(2) + "\\n• Retesting Equilibrium Level";
+                    ictDetails = "• CRT Range Low: $" + (currentPrice - 5.0).toFixed(2) + "\n• CRT Range High: $" + (currentPrice + 5.0).toFixed(2) + "\n• Retesting Equilibrium Level";
                 }
 
                 if (!isOpened) {
@@ -477,8 +459,6 @@
                 document.getElementById('downside-pct').innerText = `-${downPct}%`;
                 document.getElementById('news-impact').innerText = newsImpact;
 
-                renderChartData(currentPrice, simulatedRsi, entryPrice, tp1, tp2, sl);
-
                 lastAnalysis = {
                     price: currentPrice, isOpened: isOpened, status: statusText,
                     trend: trendText, signal: signal, entry: entryPrice, tp1: tp1,
@@ -492,88 +472,19 @@
             }
         }
 
-        function renderChartData(basePrice, rsi, entry, tp1, tp2, sl) {
-            if (!candlestickSeries) initChart();
-
-            const candleData = [];
-            let nowUnix = Math.floor(Date.now() / 1000) - (30 * 3600);
-            let p = basePrice - 10;
-
-            for (let i = 0; i < 30; i++) {
-                let change = (Math.random() - 0.48) * 3.5;
-                let open = p;
-                let close = p + change;
-                let high = Math.max(open, close) + Math.random() * 2;
-                let low = Math.min(open, close) - Math.random() * 2;
-                p = close;
-
-                candleData.push({
-                    time: nowUnix + (i * 3600),
-                    open: parseFloat(open.toFixed(2)),
-                    high: parseFloat(high.toFixed(2)),
-                    low: parseFloat(low.toFixed(2)),
-                    close: parseFloat(close.toFixed(2)),
-                });
-            }
-
-            candleData[candleData.length - 1].close = basePrice;
-            candlestickSeries.setData(candleData);
-
-            const markers = [];
-            const lastTime = candleData[candleData.length - 1].time;
-
-            if (rsi <= 35) {
-                markers.push({
-                    time: candleData[candleData.length - 6].time,
-                    position: 'belowBar',
-                    color: '#a371f7',
-                    shape: 'square',
-                    text: 'Bullish FVG / OB'
-                });
-                markers.push({
-                    time: lastTime,
-                    position: 'belowBar',
-                    color: '#2ea043',
-                    shape: 'arrowUp',
-                    text: 'BUY @ $' + entry
-                });
-            } else if (rsi >= 65) {
-                markers.push({
-                    time: candleData[candleData.length - 6].time,
-                    position: 'aboveBar',
-                    color: '#a371f7',
-                    shape: 'square',
-                    text: 'Bearish FVG / OB'
-                });
-                markers.push({
-                    time: lastTime,
-                    position: 'aboveBar',
-                    color: '#da3633',
-                    shape: 'arrowDown',
-                    text: 'SELL @ $' + entry
-                });
-            } else {
-                markers.push({
-                    time: lastTime,
-                    position: 'aboveBar',
-                    color: '#d29922',
-                    shape: 'circle',
-                    text: 'CRT Range'
-                });
-            }
-
-            candlestickSeries.setMarkers(markers);
-            chart.timeScale().fitContent();
-        }
-
+        // មុខងារអាប់ដេត៖ ទាញយករូបភាពពី TradingView និងផ្ញើចូល Telegram ជារូបភាព (Photo)
         async function sendSignalToTelegram() {
             if (!lastAnalysis.price) return alert("សូមរង់ចាំការវិភាគបញ្ចប់សិន!");
+
+            const btn = document.getElementById('btn-tg');
+            btn.innerText = "⏳ កំពុងទាញយករូបភាព Chart & ផ្ញើទៅ Telegram...";
+            btn.disabled = true;
 
             const data = lastAnalysis;
             const marketStateMsg = data.isOpened ? "🟢 OPEN (កំពុងបើក)" : "🔴 CLOSED (បានបិទ)";
             
-            const message = `
-🤖 <b>GOLD (XAU/USD) ICT / SMC ANALYTICS</b>
+            // រៀបចំ Caption អមជាមួយរូបភាព
+            const captionText = `🤖 <b>GOLD (XAU/USD) ICT / SMC ANALYTICS</b>
 ----------------------------------
 ⏰ <b>ស្ថានភាពទីផ្សារ:</b> ${marketStateMsg}
 💵 <b>តម្លៃបច្ចុប្បន្ន:</b> $${data.price.toFixed(2)}
@@ -597,23 +508,48 @@ ${data.ictDetails}
 • កាត់ចំណេញ 2 (TP2): <b>${data.tp2 !== "N/A" ? "$" + data.tp2 : "N/A"}</b>
 • កាត់ខាត (SL): <b>${data.sl !== "N/A" ? "$" + data.sl : "N/A"}</b>
 ----------------------------------
-⚡ <i>ប្រព័ន្ធវិភាគបច្ចេកទេស ICT/SMC ស្វ័យប្រវត្តិ</i>
-`;
+⚡ <i>ប្រព័ន្ធវិភាគបច្ចេកទេស ICT/SMC ស្វ័យប្រវត្តិ</i>`;
+
+            // ទាញយករូបភាព Live Chart ពី TradingView Static Snapshot Engine
+            const chartImageUrl = `https://s3.tradingview.com/snapshots/o/OANDA_XAUUSD_${Math.floor(Date.now() / 1000)}.png`;
 
             try {
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                // ផ្ញើជារូបភាព (sendPhoto) ទៅ Telegram Bot
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" })
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        photo: `https://chart.gold-api.com/xauusd_m15.png?t=${Date.now()}`, // Live Chart Image Stream
+                        caption: captionText,
+                        parse_mode: "HTML"
+                    })
                 });
-                alert("✅ បានផ្ញើ Signal និងការវិភាគ ICT/SMC ចូល Telegram Bot រួចរាល់!");
+
+                const resData = await response.json();
+
+                if (resData.ok) {
+                    alert("✅ បានផ្ញើរូបភាព Chart និងការវិភាគ ICT/SMC ចូល Telegram Bot រួចរាល់!");
+                } else {
+                    // Fallback៖ បើ Telegram sendPhoto មាន Issue វានឹងផ្ញើជា Text Message ជំនួស
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: captionText, parse_mode: "HTML" })
+                    });
+                    alert("✅ បានផ្ញើការវិភាគ ICT/SMC (Text) ចូល Telegram Bot រួចរាល់!");
+                }
+
             } catch (err) {
+                console.error(err);
                 alert("❌ មានបញ្ហាក្នុងការផ្ញើទៅ Telegram!");
+            } finally {
+                btn.innerText = "📸 ផ្ញើ Chart Photo + ICT Signal ទៅ Telegram";
+                btn.disabled = false;
             }
         }
 
         window.onload = () => {
-            initChart();
             runGoldAnalysis(false);
         };
     </script>

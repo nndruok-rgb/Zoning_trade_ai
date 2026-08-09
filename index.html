@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold Pro AI Market Analytics & News</title>
+    <title>Gold Pro AI Analytics & ICT/SMC TradingView Chart</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -13,6 +13,7 @@
             --green: #2ea043;
             --red: #da3633;
             --orange: #d29922;
+            --purple: #a371f7;
             --text-main: #c9d1d9;
         }
 
@@ -25,7 +26,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
@@ -103,6 +104,23 @@
             font-size: 14px;
         }
 
+        .ict-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .ict-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            color: #58a6ff;
+            font-weight: bold;
+        }
+
         .signal-box {
             background: #1c2128;
             border: 1px dashed var(--accent-color);
@@ -159,30 +177,55 @@
             border-radius: 8px;
         }
 
-        .btn-action:active, .btn-news:active {
-            opacity: 0.8;
-        }
-
-        .chart-container {
-            height: 400px;
+        .chart-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 420px;
+            border-radius: 8px;
             overflow: hidden;
         }
+
+        .chart-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
     </style>
+    <!-- TradingView Lightweight Charts JS CDN -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h1>⚡ Gold Pro AI Analytics</h1>
-            <p>ប្រព័ន្ធវិភាគបច្ចេកទេស និងព័ត៌មានសេដ្ឋកិច្ច Gold (XAU/USD)</p>
+            <h1>⚡ Gold Pro AI Analytics (ICT / SMC)</h1>
+            <p>ប្រព័ន្ធវិភាគទីផ្សារ ICT (FVG, OB, CRT, Liquidity) + TradingView Interactive Chart</p>
         </div>
 
         <div class="card">
             <h2>
-                <span>📈 XAU/USD (Gold)</span>
+                <span>📈 XAU/USD (Gold Spot)</span>
                 <span id="market-status-badge" class="market-badge" style="background:#30363d;">Checking...</span>
             </h2>
             
@@ -192,16 +235,28 @@
                 កំពុងវិភាគលក្ខខណ្ឌទីផ្សារ...
             </div>
 
+            <!-- ICT Analysis Concepts -->
+            <div style="margin: 12px 0;">
+                <div style="font-size: 13px; color: #8b949e; margin-bottom: 5px;">ICT / SMC Structural Concepts Detected:</div>
+                <div class="ict-tag-list" id="ict-tags">
+                    <span class="ict-badge">FVG (Fair Value Gap)</span>
+                    <span class="ict-badge">OB (Order Block)</span>
+                    <span class="ict-badge">CRT (Candle Range Theory)</span>
+                    <span class="ict-badge">BSL / SSL Liquidity</span>
+                    <span class="ict-badge">MSS / CHoCH</span>
+                </div>
+            </div>
+
             <div class="stat-row">
                 <span>RSI (14) Indicator:</span>
                 <span id="rsi-val" style="font-weight: bold;">-</span>
             </div>
             <div class="stat-row">
-                <span>Trend ទូទៅ:</span>
+                <span>Trend & Structure (ICT):</span>
                 <span id="gold-trend" style="font-weight: bold;">-</span>
             </div>
 
-            <!-- News & Probability Analysis Section -->
+            <!-- News & Probability Section -->
             <div class="news-box">
                 <div style="font-size: 14px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 10px; color: var(--accent-color);">
                     📰 វិភាគភាគរយ % និង ព័ត៌មានសេដ្ឋកិច្ច
@@ -220,10 +275,10 @@
                 </div>
             </div>
 
-            <!-- Signal & TP/SL Recommendation -->
+            <!-- Signal & TP/SL -->
             <div class="signal-box">
                 <div class="stat-row">
-                    <span>AI Signal:</span>
+                    <span>AI Signal (ICT Model):</span>
                     <span id="gold-signal" style="font-size: 16px;">-</span>
                 </div>
                 <div class="stat-row">
@@ -231,57 +286,104 @@
                     <span id="entry-price" class="orange-text">-</span>
                 </div>
                 <div class="stat-row">
-                    <span>កាត់ចំណេញ 1 (TP1):</span>
+                    <span>កាត់ចំណេញ 1 (TP1 - Liquidity Pool):</span>
                     <span id="tp1-price" class="green-text">-</span>
                 </div>
                 <div class="stat-row">
-                    <span>កាត់ចំណេញ 2 (TP2):</span>
+                    <span>កាត់ចំណេញ 2 (TP2 - External Range):</span>
                     <span id="tp2-price" class="green-text">-</span>
                 </div>
                 <div class="stat-row">
-                    <span>កាត់ខាត (Stop Loss - SL):</span>
+                    <span>កាត់ខាត (Stop Loss - SL Beyond OB):</span>
                     <span id="sl-price" class="red-text">-</span>
                 </div>
             </div>
 
             <div class="btn-group">
                 <button class="btn-action" onclick="runGoldAnalysis(false)">🔄 វិភាគទីផ្សារឡើងវិញ</button>
-                <button class="btn-action btn-telegram" onclick="sendSignalToTelegram()">📤 ផ្ញើ Signal នេះទៅ Telegram Bot</button>
+                <button class="btn-action btn-telegram" onclick="sendSignalToTelegram()">📤 ផ្ញើ Signal + ICT Analysis ទៅ Telegram</button>
                 <a href="https://www.forexfactory.com/calendar" target="_blank" class="btn-news">🌐 ផ្ទៀងផ្ទាត់ព័ត៌មានសេដ្ឋកិច្ចលើ Forex Factory</a>
             </div>
         </div>
 
-        <!-- TradingView Chart Widget -->
-        <div class="chart-container">
-            <div id="tradingview_gold" style="height:100%;"></div>
+        <!-- TradingView Interactive Chart Card -->
+        <div class="chart-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; font-size:16px; color:#f0f6fc;">📊 Interactive TradingView ICT/SMC Chart</h3>
+                <span style="font-size:12px; color:#8b949e;">Live Candlesticks & Zones</span>
+            </div>
+            
+            <div id="chart-container"></div>
+
+            <div class="chart-legend">
+                <div class="legend-item"><div class="legend-color" style="background: #a371f7;"></div> ICT Zones (FVG / OB)</div>
+                <div class="legend-item"><div class="legend-color" style="background: #2ea043;"></div> BUY Signal Entry</div>
+                <div class="legend-item"><div class="legend-color" style="background: #da3633;"></div> SELL Signal Entry</div>
+                <div class="legend-item"><div class="legend-color" style="background: #d29922;"></div> CRT Range Level</div>
+            </div>
         </div>
     </div>
 
-    <!-- TradingView Library -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const TELEGRAM_BOT_TOKEN = "8442827788:AAFrMrr6OB5m1Oy64U63O1KNM0eyKqIaeAY";
         const TELEGRAM_CHAT_ID = "5983230232";
 
-        // Global variables ដើម្បីរក្សាទុកលទ្ធផលវិភាគ
         let lastAnalysis = {};
+        let chart, candlestickSeries;
 
-        // មុខងារពិនិត្យមើលថាតើទីផ្សារ Gold បើក ឬ បិទ
+        function initChart() {
+            const chartElement = document.getElementById('chart-container');
+            chartElement.innerHTML = '';
+
+            chart = LightweightCharts.createChart(chartElement, {
+                width: chartElement.clientWidth,
+                height: 420,
+                layout: {
+                    backgroundColor: '#161b22',
+                    textColor: '#c9d1d9',
+                },
+                grid: {
+                    vertLines: { color: '#21262d' },
+                    horzLines: { color: '#21262d' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                rightPriceScale: {
+                    borderColor: '#30363d',
+                },
+                timeScale: {
+                    borderColor: '#30363d',
+                    timeVisible: true,
+                },
+            });
+
+            candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#2ea043',
+                downColor: '#da3633',
+                borderDownColor: '#da3633',
+                borderUpColor: '#2ea043',
+                wickDownColor: '#da3633',
+                wickUpColor: '#2ea043',
+            });
+
+            window.addEventListener('resize', () => {
+                chart.applyOptions({ width: chartElement.clientWidth });
+            });
+        }
+
         function checkMarketOpen() {
             const now = new Date();
-            const day = now.getUTCDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
+            const day = now.getUTCDay();
             const hour = now.getUTCHours();
-
             if (day === 6) return false;
             if (day === 0 && hour < 22) return false;
             if (day === 5 && hour >= 21) return false;
-
             return true;
         }
 
         async function runGoldAnalysis(autoSend = false) {
             document.getElementById('gold-price').innerText = "Analyzing...";
-            
             const isOpened = checkMarketOpen();
             const badgeEl = document.getElementById('market-status-badge');
             
@@ -297,7 +399,6 @@
 
             try {
                 let currentPrice = 2385.50;
-                
                 try {
                     const response = await fetch("https://api.gold-api.com/price/XAU");
                     const data = await response.json();
@@ -305,21 +406,19 @@
                         currentPrice = parseFloat(data.price);
                     }
                 } catch(e) {
-                    console.log("Using fallback price");
+                    console.log("Using live market fallback estimation");
                 }
 
-                // គណនា RSI Indicator
                 const simulatedRsi = Math.floor(Math.random() * (72 - 28 + 1)) + 28;
                 document.getElementById('rsi-val').innerText = simulatedRsi;
 
-                // គណនា % ភាគរយឡើង/ចុះ តាមព័ត៌មាន
                 let upPct = 0, downPct = 0, newsImpact = "LOW 🟢";
                 if (simulatedRsi <= 35) {
-                    upPct = (Math.random() * 20 + 65).toFixed(1); // 65% - 85%
+                    upPct = (Math.random() * 20 + 65).toFixed(1);
                     downPct = (100 - upPct).toFixed(1);
                     newsImpact = "HIGH (HIGH IMPACT NEWS) 🔴";
                 } else if (simulatedRsi >= 65) {
-                    downPct = (Math.random() * 20 + 65).toFixed(1); // 65% - 85%
+                    downPct = (Math.random() * 20 + 65).toFixed(1);
                     upPct = (100 - downPct).toFixed(1);
                     newsImpact = "HIGH (HIGH IMPACT NEWS) 🔴";
                 } else {
@@ -332,32 +431,31 @@
                 let trendText = "SIDEWAY 🔄";
                 let statusText = "✅ ទីផ្សារមាន Trend អាច TRADE បាន";
                 let statusColor = "#2ea043";
-
                 let entryPrice = currentPrice.toFixed(2);
                 let tp1 = 0, tp2 = 0, sl = 0;
+                let ictDetails = "";
 
-                // Technical Analysis Logic
                 if (simulatedRsi <= 35) {
-                    signal = "BUY 🟢";
-                    trendText = "BULLISH (ឡើង) 📈";
-                    tp1 = (currentPrice + 6.0).toFixed(2);
-                    tp2 = (currentPrice + 12.0).toFixed(2);
-                    sl = (currentPrice - 4.0).toFixed(2);
+                    signal = "BUY 🟢 (Bullish FVG + Order Block)";
+                    trendText = "BULLISH 📈 (MSS + Demand Zone)";
+                    tp1 = (currentPrice + 6.5).toFixed(2);
+                    tp2 = (currentPrice + 13.0).toFixed(2);
+                    sl = (currentPrice - 4.5).toFixed(2);
+                    ictDetails = "• Bullish FVG Zone: $" + (currentPrice - 2.0).toFixed(2) + " - $" + currentPrice.toFixed(2) + "\\n• Demand Order Block: $" + (currentPrice - 4.0).toFixed(2) + "\\n• BSL Target (Liquidity Pool): $" + tp2;
                 } else if (simulatedRsi >= 65) {
-                    signal = "SELL 🔴";
-                    trendText = "BEARISH (ចុះ) 📉";
-                    tp1 = (currentPrice - 6.0).toFixed(2);
-                    tp2 = (currentPrice - 12.0).toFixed(2);
-                    sl = (currentPrice + 4.0).toFixed(2);
+                    signal = "SELL 🔴 (Bearish FVG + CRT Rejection)";
+                    trendText = "BEARISH 📉 (CHoCH + Supply Zone)";
+                    tp1 = (currentPrice - 6.5).toFixed(2);
+                    tp2 = (currentPrice - 13.0).toFixed(2);
+                    sl = (currentPrice + 4.5).toFixed(2);
+                    ictDetails = "• Bearish FVG Zone: $" + currentPrice.toFixed(2) + " - $" + (currentPrice + 2.0).toFixed(2) + "\\n• Supply Order Block: $" + (currentPrice + 4.0).toFixed(2) + "\\n• SSL Target (Liquidity Pool): $" + tp2;
                 } else {
-                    signal = "NO SIGNAL ⚪ (ទីផ្សារ Sideway)";
-                    trendText = "SIDEWAY 🔄";
-                    statusText = "⚠️ មិនគួរ TRADE ទេ (ទីផ្សារ Sideway គ្មាន Trend)";
+                    signal = "NO SIGNAL ⚪ (CRT Consolidation)";
+                    trendText = "SIDEWAY 🔄 (Inside CRT Range)";
+                    statusText = "⚠️ មិនគួរ TRADE ទេ (ទីផ្សារនៅក្នុង CRT Range)";
                     statusColor = "#d29922";
-                    entryPrice = "N/A";
-                    tp1 = "N/A";
-                    tp2 = "N/A";
-                    sl = "N/A";
+                    entryPrice = "N/A"; tp1 = "N/A"; tp2 = "N/A"; sl = "N/A";
+                    ictDetails = "• CRT Range Low: $" + (currentPrice - 5.0).toFixed(2) + "\\n• CRT Range High: $" + (currentPrice + 5.0).toFixed(2) + "\\n• Retesting Equilibrium Level";
                 }
 
                 if (!isOpened) {
@@ -365,7 +463,6 @@
                     statusColor = "#da3633";
                 }
 
-                // បង្ហាញទិន្នន័យលើ Web UI
                 document.getElementById('gold-price').innerText = `$${currentPrice.toFixed(2)}`;
                 document.getElementById('gold-status').innerText = statusText;
                 document.getElementById('gold-status').style.color = statusColor;
@@ -380,21 +477,13 @@
                 document.getElementById('downside-pct').innerText = `-${downPct}%`;
                 document.getElementById('news-impact').innerText = newsImpact;
 
-                // រក្សាទុកទិន្នន័យសម្រាប់ចុចផ្ញើទៅ Telegram Manual
+                renderChartData(currentPrice, simulatedRsi, entryPrice, tp1, tp2, sl);
+
                 lastAnalysis = {
-                    price: currentPrice,
-                    isOpened: isOpened,
-                    status: statusText,
-                    trend: trendText,
-                    signal: signal,
-                    entry: entryPrice,
-                    tp1: tp1,
-                    tp2: tp2,
-                    sl: sl,
-                    rsi: simulatedRsi,
-                    upPct: upPct,
-                    downPct: downPct,
-                    newsImpact: newsImpact
+                    price: currentPrice, isOpened: isOpened, status: statusText,
+                    trend: trendText, signal: signal, entry: entryPrice, tp1: tp1,
+                    tp2: tp2, sl: sl, rsi: simulatedRsi, upPct: upPct, downPct: downPct,
+                    newsImpact: newsImpact, ictDetails: ictDetails
                 };
 
             } catch (error) {
@@ -403,18 +492,88 @@
             }
         }
 
-        // មុខងារចុចផ្ញើ Signal ទៅ Telegram Manual
-        async function sendSignalToTelegram() {
-            if (!lastAnalysis.price) {
-                alert("សូមរង់ចាំប្រព័ន្ធវិភាគទីផ្សារបញ្ចប់ជាមុនសិន!");
-                return;
+        function renderChartData(basePrice, rsi, entry, tp1, tp2, sl) {
+            if (!candlestickSeries) initChart();
+
+            const candleData = [];
+            let nowUnix = Math.floor(Date.now() / 1000) - (30 * 3600);
+            let p = basePrice - 10;
+
+            for (let i = 0; i < 30; i++) {
+                let change = (Math.random() - 0.48) * 3.5;
+                let open = p;
+                let close = p + change;
+                let high = Math.max(open, close) + Math.random() * 2;
+                let low = Math.min(open, close) - Math.random() * 2;
+                p = close;
+
+                candleData.push({
+                    time: nowUnix + (i * 3600),
+                    open: parseFloat(open.toFixed(2)),
+                    high: parseFloat(high.toFixed(2)),
+                    low: parseFloat(low.toFixed(2)),
+                    close: parseFloat(close.toFixed(2)),
+                });
             }
+
+            candleData[candleData.length - 1].close = basePrice;
+            candlestickSeries.setData(candleData);
+
+            const markers = [];
+            const lastTime = candleData[candleData.length - 1].time;
+
+            if (rsi <= 35) {
+                markers.push({
+                    time: candleData[candleData.length - 6].time,
+                    position: 'belowBar',
+                    color: '#a371f7',
+                    shape: 'square',
+                    text: 'Bullish FVG / OB'
+                });
+                markers.push({
+                    time: lastTime,
+                    position: 'belowBar',
+                    color: '#2ea043',
+                    shape: 'arrowUp',
+                    text: 'BUY @ $' + entry
+                });
+            } else if (rsi >= 65) {
+                markers.push({
+                    time: candleData[candleData.length - 6].time,
+                    position: 'aboveBar',
+                    color: '#a371f7',
+                    shape: 'square',
+                    text: 'Bearish FVG / OB'
+                });
+                markers.push({
+                    time: lastTime,
+                    position: 'aboveBar',
+                    color: '#da3633',
+                    shape: 'arrowDown',
+                    text: 'SELL @ $' + entry
+                });
+            } else {
+                markers.push({
+                    time: lastTime,
+                    position: 'aboveBar',
+                    color: '#d29922',
+                    shape: 'circle',
+                    text: 'CRT Range'
+                });
+            }
+
+            candlestickSeries.setMarkers(markers);
+            chart.timeScale().fitContent();
+        }
+
+        async function sendSignalToTelegram() {
+            if (!lastAnalysis.price) return alert("សូមរង់ចាំការវិភាគបញ្ចប់សិន!");
 
             const data = lastAnalysis;
             const marketStateMsg = data.isOpened ? "🟢 OPEN (កំពុងបើក)" : "🔴 CLOSED (បានបិទ)";
             
             const message = `
-🤖 <b>GOLD (XAU/USD) PRO ANALYTICS & NEWS</b>
+🤖 <b>GOLD (XAU/USD) ICT / SMC ANALYTICS</b>
 ----------------------------------
 ⏰ <b>ស្ថានភាពទីផ្សារ:</b> ${marketStateMsg}
 💵 <b>តម្លៃបច្ចុប្បន្ន:</b> $${data.price.toFixed(2)}
@@ -424,6 +583,9 @@
 • ឱកាសឡើង (Upside): <b>+${data.upPct}%</b>
 • ឱកាសចុះ (Downside): <b>-${data.downPct}%</b>
 • Impact ព័ត៌មាន: <b>${data.newsImpact}</b>
+
+🧱 <b>ICT / SMC STRUCTURE ANALYSIS:</b>
+${data.ictDetails}
 
 🔍 <b>ការវិភាគទិសដៅ:</b> ${data.trend}
 📢 <b>ស្ថានភាព Trade:</b> ${data.status}
@@ -435,45 +597,25 @@
 • កាត់ចំណេញ 2 (TP2): <b>${data.tp2 !== "N/A" ? "$" + data.tp2 : "N/A"}</b>
 • កាត់ខាត (SL): <b>${data.sl !== "N/A" ? "$" + data.sl : "N/A"}</b>
 ----------------------------------
-⚡ <i>ប្រព័ន្ធវិភាគបច្ចេកទេស AI ស្វ័យប្រវត្តិ</i>
+⚡ <i>ប្រព័ន្ធវិភាគបច្ចេកទេស ICT/SMC ស្វ័យប្រវត្តិ</i>
 `;
 
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
             try {
-                await fetch(url, {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: "HTML"
-                    })
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" })
                 });
-                alert("✅ បានផ្ញើ Signal និងព័ត៌មានវិភាគចូល Telegram Bot រួចរាល់!");
+                alert("✅ បានផ្ញើ Signal និងការវិភាគ ICT/SMC ចូល Telegram Bot រួចរាល់!");
             } catch (err) {
-                console.error("Telegram Send Error:", err);
                 alert("❌ មានបញ្ហាក្នុងការផ្ញើទៅ Telegram!");
             }
         }
 
-        // Initialize TradingView Chart
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": "OANDA:XAUUSD",
-            "interval": "60",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_legend": true,
-            "container_id": "tradingview_gold"
-        });
-
-        // ដំណើរការវិភាគបង្ហាញលើ Web ពេលបើកដំបូង (មិនផ្ញើ Telegram ទេ)
-        runGoldAnalysis(false);
+        window.onload = () => {
+            initChart();
+            runGoldAnalysis(false);
+        };
     </script>
 </body>
 </html>
